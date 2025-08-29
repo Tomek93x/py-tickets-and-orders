@@ -1,6 +1,7 @@
 from typing import Optional
+from django.contrib.auth import get_user_model
 
-from db.models import User
+User = get_user_model()
 
 
 def create_user(
@@ -42,8 +43,10 @@ def update_user(
 ) -> User:
     """
     Update user fields with provided optional values.
+    Reuses get_user function to fetch the user instance.
     """
-    user = User.objects.get(id=user_id)
+    user = get_user(user_id)
+
     if username:
         user.username = username
     if password:
@@ -54,5 +57,6 @@ def update_user(
         user.first_name = first_name
     if last_name:
         user.last_name = last_name
+
     user.save()
     return user

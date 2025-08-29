@@ -1,15 +1,19 @@
 from typing import Optional, List, Dict
 from django.db import transaction
 from django.db.models import QuerySet
+from django.contrib.auth import get_user_model
 
-from db.models import Order, Ticket, User
+from db.models import Order, Ticket
+
+# Pobieramy model użytkownika dynamicznie
+User = get_user_model()
 
 
 @transaction.atomic
 def create_order(
-    tickets: List[Dict[str, int]],
-    username: str,
-    date: Optional[str] = None,
+        tickets: List[Dict[str, int]],
+        username: str,
+        date: Optional[str] = None,
 ) -> Order:
     """
     Create an order for a user with tickets.
@@ -17,6 +21,7 @@ def create_order(
     """
     user = User.objects.get(username=username)
     order = Order.objects.create(user=user)
+
     if date:
         order.created_at = date
         order.save(update_fields=["created_at"])
@@ -31,7 +36,7 @@ def create_order(
     return order
 
 
-def get_orders(username: Optional[str] = None) -> QuerySet:
+def get_orders(username: Optional[str] = None) -> QuerySet[Order]:
     """
     Get all orders or filter by username.
     Returns a Django QuerySet.

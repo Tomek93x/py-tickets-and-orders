@@ -1,7 +1,5 @@
 from typing import Optional
-
 from django.db.models import QuerySet
-
 from db.models import MovieSession, Ticket
 
 
@@ -20,9 +18,11 @@ def create_movie_session(
     )
 
 
-def get_movies_sessions(session_date: Optional[str] = None) -> QuerySet:
+def get_movies_sessions(
+    session_date: Optional[str] = None
+) -> QuerySet[MovieSession]:
     """
-    Get all movie sessions, optionally filter by session date.
+    Get all movie sessions. Optionally filter by session date.
     """
     queryset = MovieSession.objects.all()
     if session_date:
@@ -66,6 +66,8 @@ def delete_movie_session_by_id(session_id: int) -> None:
 def get_taken_seats(movie_session_id: int) -> list[dict[str, int]]:
     """
     Get a list of taken seats for a given movie session.
+
+    Returns a list of dictionaries with "row" and "seat" keys.
     Example:
         [
             {"row": 7, "seat": 10},

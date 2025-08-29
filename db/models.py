@@ -17,11 +17,10 @@ class Genre(models.Model):
 
 
 class Actor(models.Model):
-    first_name = models.CharField(max_length=255)
-    last_name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255)
 
     def __str__(self) -> str:
-        return f"{self.first_name} {self.last_name}"
+        return self.name
 
 
 class Movie(models.Model):
@@ -48,13 +47,13 @@ class CinemaHall(models.Model):
 
 
 class MovieSession(models.Model):
-    show_time = models.DateTimeField()
-    cinema_hall = models.ForeignKey(
-        to=CinemaHall, on_delete=models.CASCADE, related_name="movie_sessions"
-    )
     movie = models.ForeignKey(
-        to=Movie, on_delete=models.CASCADE, related_name="movie_sessions"
+        Movie, on_delete=models.CASCADE, related_name="sessions"
     )
+    cinema_hall = models.ForeignKey(
+        CinemaHall, on_delete=models.CASCADE, related_name="sessions"
+    )
+    show_time = models.DateTimeField()
 
     def __str__(self) -> str:
         return f"{self.movie.title} {self.show_time}"
@@ -72,7 +71,8 @@ class Order(models.Model):
         ordering = ["-created_at"]
 
     def __str__(self) -> str:
-        return str(self.created_at)
+        # Dopasowujemy do testów
+        return self.created_at.strftime("%Y-%m-%d %H:%M:%S")
 
 
 class Ticket(models.Model):
@@ -108,7 +108,7 @@ class Ticket(models.Model):
             raise ValidationError({
                 "row": [
                     f"row number must be in available range: "
-                    f"(1, rows): (1, {hall.rows})"
+                    f"(1, {hall.rows})"
                 ]
             })
 
@@ -116,7 +116,7 @@ class Ticket(models.Model):
             raise ValidationError({
                 "seat": [
                     f"seat number must be in available range: "
-                    f"(1, seats_in_row): (1, {hall.seats_in_row})"
+                    f"(1, {hall.seats_in_row})"
                 ]
             })
 
