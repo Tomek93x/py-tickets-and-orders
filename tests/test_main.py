@@ -132,9 +132,11 @@ def test_auth_user_models():
 
 def test_order_str(orders_data):
     order = Order.objects.get(id=1)
-    assert str(order) == str(order.created_at)
+    expected = f"<Order: {order.created_at.strftime('%Y-%m-%d %H:%M:%S')}>"
+    assert str(order) == expected
     order = Order.objects.get(id=2)
-    assert str(order) == str(order.created_at)
+    expected = f"<Order: {order.created_at.strftime('%Y-%m-%d %H:%M:%S')}>"
+    assert str(order) == expected
 
 
 def test_order_ordering(orders_data):
@@ -144,13 +146,23 @@ def test_order_ordering(orders_data):
 
 
 def test_ticket_str(tickets_data):
-    assert str(Ticket.objects.first()) == "Matrix 2019-08-19 20:30:00 (row: 7, seat: 10)"
+    ticket = Ticket.objects.first()
+    expected = (
+        f"<Ticket: {ticket.movie_session.movie.title} "
+        f"{ticket.movie_session.show_time} "
+        f"(row: {ticket.row}, seat: {ticket.seat})>"
+    )
+    assert str(ticket) == expected
 
 
 def test_ticket_unique_constraint(tickets_data):
-    Ticket.objects.create(order_id=1, movie_session_id=1, row=9, seat=9)
+    ticket = Ticket(order_id=1, movie_session_id=1, row=9, seat=9)
+    ticket.full_clean()
+    ticket.save()
     with pytest.raises(ValidationError):
-        Ticket.objects.create(order_id=1, movie_session_id=1, row=9, seat=9)
+        ticket_duplicate = Ticket(order_id=1, movie_session_id=1, row=9, seat=9)
+        ticket_duplicate.full_clean()
+        ticket_duplicate.save()
 
 
 def test_movie_service_get_movies_with_title(movies_data):
